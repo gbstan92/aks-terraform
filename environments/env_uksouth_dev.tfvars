@@ -1,1 +1,1 @@
-prject = "hmcts"
+project = "hmcts"

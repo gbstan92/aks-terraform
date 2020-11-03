@@ -28,17 +28,22 @@ resource "azurerm_virtual_network" "aks-infra-vnet" {
   address_space       = ["10.0.0.0/16"]
   dns_servers         = ["10.0.0.4", "10.0.0.5"]
 
+  dynamic "subnet" {
+    for_each = [for s in subnets: {
+      name   = s.name
+      prefix = s.prefix
+    }]
+
+    content {
+      name           = subnet.value.name
+      address_prefix = subnet.value.prefix
+    }
+  }
+
   tags = {
     environment = var.env
   }
 }
-
-module "subnet" {
-  virtual_network_name = resoazurerm_virtual_networkurce.aks-infra-vnet.name
-  resource_group_name = azurerm_resource_group.aks-infra-rg.name
-  address_prefixes    = var.subnets_prefix
-}
-
 
 resource "azurerm_key_vault" "kv" {
   name                        = "${var.env}-kv"
