@@ -25,15 +25,4 @@ variable "subnets" {
 
 variable "vm_size" {}
 
-variable "cluster" {
-  default = [
-    {
-      prefix   = "00"
-      kube_version = "18.8"
-    },
-    {
-      prefix   = "01"
-      kube_version = "18.8"
-    }
-  ]
-}
+variable "cluster" {}

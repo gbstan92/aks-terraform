@@ -1,6 +1,6 @@
 resource "azurerm_kubernetes_cluster" "aks-infra-aks" {
   name                = "${var.env}-${var.clusterPrefix}-aks"
-  location            = "azurerm_resource_group.aks-infra-rg.location"
+  location            = azurerm_resource_group.aks-infra-rg.location
   resource_group_name = azurerm_resource_group.aks-infra-rg.name
   dns_prefix          = "${var.env}-${var.clusterPrefix}-aks"
 

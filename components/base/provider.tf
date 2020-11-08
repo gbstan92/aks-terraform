@@ -6,5 +6,5 @@ provider "azurerm" {
     }
   }
 }
-  
+
   

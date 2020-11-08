@@ -22,7 +22,7 @@ resource "azurerm_network_security_group" "aks-infra-iaas-nsg" {
 }
 
 resource "azurerm_virtual_network" "aks-infra-vnet" {
-  name                = "aks-infra-sbox-vnet"
+  name                = "aks-infra-${var.env}-vnet"
   location            = azurerm_resource_group.aks-infra-rg.location
   resource_group_name = azurerm_resource_group.aks-infra-rg.name
   address_space       = ["10.0.0.0/16"]
@@ -46,7 +46,7 @@ resource "azurerm_virtual_network" "aks-infra-vnet" {
 }
 
 resource "azurerm_key_vault" "kv" {
-  name                        = "${var.env}-kv"
+  name                        = "aks-infra-${var.env}-kv"
   location                    = azurerm_resource_group.aks-infra-rg.location
   resource_group_name         = azurerm_resource_group.aks-infra-rg.name
   enabled_for_disk_encryption = true
