@@ -29,7 +29,7 @@ resource "azurerm_virtual_network" "aks-infra-vnet" {
   dns_servers         = ["10.0.0.4", "10.0.0.5"]
 
   dynamic "subnet" {
-    for_each = [for s in subnets: {
+    for_each = [for s in var.subnets: {
       name   = s.name
       prefix = s.prefix
     }]

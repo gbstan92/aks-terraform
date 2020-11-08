@@ -1,8 +1,8 @@
 resource "azurerm_kubernetes_cluster" "aks-infra-aks" {
-  name                = "${var.clusterName}-aks"
-  location            = azurerm_resource_group.aks-infra-00-rg.location
-  resource_group_name = azurerm_resource_group.aks-infra-00-rg.name
-  dns_prefix          = "${var.clusterName}-aks"
+  name                = "${var.env}-${var.clusterPrefix}-aks"
+  location            = "azurerm_resource_group.aks-infra-rg.location"
+  resource_group_name = azurerm_resource_group.aks-infra-rg.name
+  dns_prefix          = "${var.env}-${var.clusterPrefix}-aks"
 
   default_node_pool {
     name       = "nodepool"
@@ -31,10 +31,10 @@ resource "azurerm_kubernetes_cluster" "aks-infra-aks" {
   }
 }
 
-output "client_certificate_00" {
-  value = azurerm_kubernetes_cluster.aks-infra-00-aks.kube_config.0.client_certificate
+output "client_certificate" {
+  value = azurerm_kubernetes_cluster.aks-infra-aks.kube_config.0.client_certificate
 }
 
-output "kube_config_00" {
-  value = azurerm_kubernetes_cluster.aks-infra-00-aks.kube_config_raw
+output "kube_config" {
+  value = azurerm_kubernetes_cluster.aks-infra-aks.kube_config_raw
 }
