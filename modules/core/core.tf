@@ -25,20 +25,7 @@ resource "azurerm_virtual_network" "aks-infra-vnet" {
   name                = "aks-infra-${var.env}-vnet"
   location            = azurerm_resource_group.aks-infra-rg.location
   resource_group_name = azurerm_resource_group.aks-infra-rg.name
-  address_space       = ["10.0.0.0/16"]
-  dns_servers         = ["10.0.0.4", "10.0.0.5"]
-
-  dynamic "subnet" {
-    for_each = [for s in var.subnets: {
-      name   = s.name
-      prefix = s.prefix
-    }]
-
-    content {
-      name           = subnet.value.name
-      address_prefix = subnet.value.prefix
-    }
-  }
+  address_space       = ["10.13.0.0/18"]
 
   tags = {
     environment = var.env

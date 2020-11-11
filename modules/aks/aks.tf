@@ -11,6 +11,7 @@ resource "azurerm_kubernetes_cluster" "aks-infra-aks" {
     orchestrator_version = var.kube_version
     os_disk_size_gb = 100
     type = "VirtualMachineScaleSets"
+    vnet_subnet_id = azurerm_subnet.aks-infra-subnet.id
   }
 
   identity {
