@@ -1,0 +1,171 @@
+# Docs:
+# https://aka.ms/yaml
+
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - /modules/azure-landing-zone/*
+    - /components/global/*
+    - /environments/demo/demo.tfvars
+    - /environments/dev/dev.tfvars
+    - /environments/ithc/ithc.tfvars
+    - /environments/ldata/ldata.tfvars
+    - /environments/prod/prod.tfvars
+    - /environments/ptl/ptl.tfvars
+    - /environments/sbox/sbox.tfvars
+    - /environments/stg/stg.tfvars
+    - /environments/test/test.tfvars
+    
+variables:
+  terraformVersion: 0.14.4
+  agentPool: 'hmcts-cftptl-agent-pool'
+  build: $(Build.BuildNumber)
+  timeoutInMinutes: 300
+  isMaster: $[eq(variables['Build.SourceBranch'], 'refs/heads/master')]
+  action:
+
+parameters:
+  - name: environment_components
+    type: object
+    default:
+    - deployment: 'sbox_global'
+      environment: 'sbox'
+      component: 'global'
+      service_connection: 'dcd-cftapps-sbox'
+      storage_account_rg: 'core-infra-sbox-rg'
+      storage_account_name: 'cftappssbox'
+      dependsOn: 'Precheck'
+      files_list: 'components/global modules/azure-landing-zone environments/sbox/sbox.tfvars environments/variables.tf'
+      alwaysApply: false
+
+    - deployment: 'demo_global'
+      environment: 'demo'
+      component: 'global'
+      service_connection: 'dcd-cftapps-demo'
+      storage_account_rg: 'core-infra-demo-rg'
+      storage_account_name: 'cftappsdemo'
+      dependsOn: 'Precheck'
+      files_list: 'components/global modules/azure-landing-zone environments/demo/demo.tfvars environments/variables.tf'
+      alwaysApply: false
+
+    - deployment: 'dev_global'      
+      environment: 'dev'
+      component: 'global'
+      service_connection: 'dcd-cftapps-dev'
+      storage_account_rg: 'core-infra-dev-rg'
+      storage_account_name: 'cftappsdev'
+      dependsOn: 'Precheck'
+      files_list: 'components/global modules/azure-landing-zone environments/dev/dev.tfvars environments/variables.tf'
+      alwaysApply: false
+
+    - deployment: 'ithc_global'
+      environment: 'ithc'
+      component: 'global'
+      service_connection: 'dcd-cftapps-ithc'
+      storage_account_rg: 'core-infra-ithc-rg'
+      storage_account_name: 'cftappsithc'
+      dependsOn: 'Precheck'
+      files_list: 'components/global modules/azure-landing-zone environments/ithc/ithc.tfvars environments/variables.tf'
+      alwaysApply: false
+
+    - deployment: 'ldata_global'
+      environment: 'ldata'
+      component: 'global'
+      service_connection: 'azurerm-ethosldata'
+      storage_account_rg: 'core-infra-ldata-rg'
+      storage_account_name: 'ethosldata'
+      dependsOn: 'Precheck'
+      files_list: 'components/global modules/azure-landing-zone environments/ldata/ldata.tfvars environments/variables.tf'
+      alwaysApply: false
+
+    - deployment: 'perftest_global'
+      environment: 'test'
+      component: 'global'
+      service_connection: 'dcd-cftapps-test'
+      storage_account_rg: 'core-infra-test-rg'
+      storage_account_name: 'cftappstest'
+      dependsOn: 'Precheck'
+      files_list: 'components/global modules/azure-landing-zone environments/test/test.tfvars environments/variables.tf'
+      alwaysApply: false
+
+    - deployment: 'aat_global'
+      environment: 'stg'
+      component: 'global'
+      service_connection: 'dcd-cftapps-stg'
+      storage_account_rg: 'core-infra-stg-rg'
+      storage_account_name: 'cftappsstg'
+      dependsOn: 'sbox_global'
+      files_list: 'components/global modules/azure-landing-zone environments/stg/stg.tfvars environments/variables.tf'
+      alwaysApply: false
+
+    - deployment: 'prod_global'
+      environment: 'prod'
+      component: 'global'
+      service_connection: 'dcd-cftapps-prod'
+      storage_account_rg: 'core-infra-prod-rg'
+      storage_account_name: 'cftappsprod'
+      dependsOn: 'sbox_global'
+      files_list: 'components/global modules/azure-landing-zone environments/prod/prod.tfvars environments/variables.tf'
+      alwaysApply: false
+
+stages:
+  - stage: Precheck
+    
+    jobs:
+      - job: Validate
+        timeoutInMinutes: ${{ variables.timeoutInMinutes }}
+        pool: ${{ variables.agentPool }}
+        steps:
+        - task: AzureKeyVault@1
+          displayName: Retrieve keyvault secret for ADO token
+          inputs:
+            ConnectedServiceName: azurerm-sandbox
+            keyVaultName: infra-vault-nonprod
+            secretsFilter: 'azure-devops-token'
+            runAsPreJob: false
+        - task: Bash@3
+          displayName: Prevent parallel run
+          env:
+            thisbuild: $(Build.BuildId)
+            pipelinedefinition: $(System.DefinitionId)
+            azuredevopstoken: $(azure-devops-token)
+          inputs:
+            filePath: pipeline-scripts/builds-check.sh
+        - task: TerraformInstaller@0
+          displayName: Terraform install
+          inputs:
+            terraformVersion: ${{ variables.terraformVersion }}
+        - task: PowerShell@2
+          displayName: Run tests
+          inputs:
+            targetType: 'filePath'
+            filePath: $(System.DefaultWorkingDirectory)/pipeline-scripts/pester-tests.ps1
+            pwsh: true
+        - task: PublishTestResults@2
+          displayName: 'Publish Test Results **/TEST-*.xml'
+          inputs:
+            testResultsFormat: NUnit
+            failTaskOnFailedTests: true
+          condition: always()
+
+  - ${{ each deployment in parameters.environment_components }}:
+    - stage: ${{ deployment.deployment }}
+      dependsOn: ${{ deployment.dependsOn }}
+      jobs:
+        - template: pipeline-templates/terraform.yaml
+          parameters:       
+            environment: ${{ deployment.environment }}
+            component: ${{ deployment.component }}
+            service_connection: ${{ deployment.service_connection }}
+            storage_account_rg: ${{ deployment.storage_account_rg }}
+            storage_account_name: ${{ deployment.storage_account_name }}
+            build: ${{ variables.build }}
+            terraformVersion: ${{ variables.terraformVersion }}
+            timeoutInMinutes: ${{ variables.timeoutInMinutes }}
+            pool: ${{ variables.agentPool }}
+            files_list: ${{ deployment.files_list }}
+            alwaysApply: ${{ deployment.alwaysApply }}
