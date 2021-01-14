@@ -8,7 +8,7 @@ trigger:
     - master
 
 variables:
-  terraformVersion: 0.14.4
+  terraformVersion: 0.12.26
   timeoutInMinutes: 60
   agentPool: 'ubuntu-18.04'
   build: $(Build.BuildNumber)
