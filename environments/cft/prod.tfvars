@@ -1,5 +1,5 @@
 project = "cft"
-env = "dev"
+env = "prod"
 location = "uksouth"
 vnet_cidr = ["10.0.0.0/18"]
 vm_size = "Standard_D4s_v3"
