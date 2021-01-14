@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
-organization="hmcts"
-project="CNP"
+organization="bogdan0322"
+project="Devops"
 
 echo "This is build $thisbuild"
 IFS=$'\n'
