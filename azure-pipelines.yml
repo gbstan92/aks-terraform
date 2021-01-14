@@ -46,8 +46,8 @@ stages:
         - task: AzureKeyVault@1
           displayName: Retrieve keyvault secret for ADO token
           inputs:
-            ConnectedServiceName: azurerm-sandbox
-            keyVaultName: infra-vault-nonprod
+            ConnectedServiceName: 'AzureDemo'
+            keyVaultName: platops-kv
             secretsFilter: 'azure-devops-token'
             runAsPreJob: false
         - task: Bash@3
