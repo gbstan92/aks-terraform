@@ -40,7 +40,7 @@
         inputs:
           command: 'plan'
           commandOptions: '-out=${{ parameters.environment }}${{ parameters.component }}${{ parameters.build }}plan -var-file=$(System.DefaultWorkingDirectory)/environments/${{ parameters.product }}/${{ parameters.environment }}.tfvars'
-          workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.product }}/components/${{ parameters.component }}'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/products/${{ parameters.product }}/components/${{ parameters.component }}'
           environmentServiceName: '${{ parameters.service_connection }}'
         env:
           tenantId : $(TenantId)
