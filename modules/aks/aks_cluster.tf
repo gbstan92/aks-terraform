@@ -6,15 +6,15 @@ resource "azurerm_kubernetes_cluster" "aks-infra-aks" {
   kubernetes_version  = var.kube_version
 
   default_node_pool {
-    name                  = "nodepool"
-    os_disk_size_gb       = 100
-    node_count            = 1
-    vm_size               = var.vm_size
-    enable_auto_scaling   = true
-    max_count             = 30
-    min_count             = 1
-    type                  = "VirtualMachineScaleSets"
-    orchestrator_version  = var.kube_version
+    name                 = "nodepool"
+    os_disk_size_gb      = 100
+    node_count           = 1
+    vm_size              = var.vm_size
+    enable_auto_scaling  = true
+    max_count            = 30
+    min_count            = 1
+    type                 = "VirtualMachineScaleSets"
+    orchestrator_version = var.kube_version
   }
 
   identity {

@@ -2,8 +2,8 @@ module "aks" {
   source = "../../../../modules/aks/"
 
   for_each = {
-        for aks in var.cluster: aks.name => aks
-    }
+    for aks in var.cluster : aks.name => aks
+  }
 
   env                     = var.env
   location                = var.location

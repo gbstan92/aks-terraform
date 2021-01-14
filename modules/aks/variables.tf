@@ -7,5 +7,5 @@ variable "subnet" {}
 variable "virtual_network_name" {}
 variable "virtual_network_rg_name" {}
 variable "default_tags" {
-    default = {}
+  default = {}
 }
